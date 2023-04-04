@@ -3,22 +3,6 @@
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
-def MYPROJECT = ''
-def dataJson = ''
-def CREATE = ''
-def dataJsonCreate = ''
-def variable
-
-def getUUIDValue(requestValue) {
-    return getUUID(requestValue)[0]
-}
-
-def getUUID(requestValue) {
-    def jsonSlurper = new JsonSlurper()
-    def variable = jsonSlurper.parseText(requestValue)
-    return variable.uuid
-}
-
 pipeline {
     agent {
         kubernetes(containerCall(imageName: ACR_NAME, credentialSecret: SECRET))
@@ -99,48 +83,6 @@ pipeline {
             }
         }
 
-        // stage('get-projects') {
-        //     steps {
-        //         script {
-        //             env.MYPROJECT = sh( script: """
-        //             curl --location 'https://${BASE_URL}/api/v1/project?name=${PROJECT_NAME}&excludeInactive=false' \
-        //             --header 'Accept: application/json' \
-        //             --header 'X-Api-Key: ${DEPENDENCY_API_KEY}'""",
-        //             returnStdout: true).trim()
-        //             env.dataJson = getUUIDValue("${env.MYPROJECT}")
-        //             println("${env.dataJson}")
-        //         }
-        //     }
-        // }
-
-        // stage('create-project') {
-        //     when {
-        //         anyOf {
-        //             expression { env.dataJson == 'null' }
-        //             expression { env.dataJson == null }
-        //             expression { env.dataJson == [] }
-        //         }
-        //     }
-        //     steps {
-        //         script {
-        //             println("Valor del env.dataJson antes del create: ${env.dataJson}")
-        //             println("Valor del DEPENDENCY_API_KEY antes del create: ${DEPENDENCY_API_KEY}")
-        //             env.CREATE = sh( script: """
-        //                 curl --location --request PUT 'https://${BASE_URL}/api/v1/project' \
-        //                     --header 'Content-Type: application/json' \
-        //                     --header 'Accept: application/json' \
-        //                     --header 'X-Api-Key: ${DEPENDENCY_API_KEY}' \
-        //                     --data '{
-        //                     "name": "${PROJECT_NAME}"
-        //                     }'
-        //             """, returnStdout: true).trim()
-        //             env.dataJson = getUUID("${env.CREATE}")
-        //             println("Valor del env.CREATE despues del create: ${env.CREATE}")
-        //             println("Valor del env.dataJson despues del create ${env.dataJson}")
-        //         }
-        //     }
-        // }
-
         stage('Generate BOM') {
             steps {
                 sh './mvnw org.cyclonedx:cyclonedx-maven-plugin:makeBom'
@@ -149,9 +91,7 @@ pipeline {
 
         stage('Dependency Tracker') {
             steps {
-                echo "${env.dataJson}"
                 dependencyTrackPublisher artifact: 'target/bom.xml',
-                    //projectId: "${env.dataJson}",
                     projectName: env.APP_NAME,
                     projectVersion: env.BUILD_NUMBER,
                     synchronous: true,
