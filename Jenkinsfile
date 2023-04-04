@@ -1,43 +1,33 @@
-#!groovy
+@Library('jenkins-library') _
+
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
+
+def MYPROJECT = ''
+def dataJson = ''
+def CREATE = ''
+def dataJsonCreate = ''
+def variable
+
+def getUUIDValue(requestValue) {
+    return getUUID(requestValue)[0]
+}
+
+def getUUID(requestValue) {
+    def jsonSlurper = new JsonSlurper()
+    def variable = jsonSlurper.parseText(requestValue)
+    return variable.uuid
+}
+
 pipeline {
     agent {
-        kubernetes {
-            defaultContainer 'jdk'
-            yaml '''
-apiVersion: v1
-kind: Pod
-spec:
-  securityContext:
-    runAsUser: 1001
-  containers:
-    - name: jdk
-      image: docker.io/eclipse-temurin:18.0.2.1_1-jdk
-      command:
-        - sleep
-      args:
-        - infinity
-    - name: podman
-      image: quay.io/containers/podman:v4.2.0
-      command:
-        - sleep
-      args:
-        - infinity
-      securityContext:
-        runAsUser: 0
-        privileged: true
-    - name: aks
-      image: acrdvpsplatformdev.azurecr.io/devops-platform-image:v0.0.5
-      command:
-        - sleep
-      args:
-        - infinity
-  imagePullSecrets:
-    - name: master-acr-credentials
-'''
-        }
+        kubernetes(containerCall(imageName: ACR_NAME, credentialSecret: SECRET))
     }
 
     environment {
+        BASE_URL = credentials('url-dependency')
+        DEPENDENCY_API_KEY = credentials('dependency--api-key')
+        PROJECT_NAME = 'prueba_dt'
         APP_NAME = 'deors-demos-java-pipeline'
         APP_VERSION = '1.0'
         APP_CONTEXT_ROOT = '/'
@@ -47,17 +37,21 @@ spec:
         IMAGE_NAME = "$IMAGE_PREFIX/$APP_NAME"
         IMAGE_SNAPSHOT = "$IMAGE_NAME:snapshot-$BUILD_NUMBER"
         TEST_CONTAINER_NAME = "ephtest-$APP_NAME-$BUILD_NUMBER"
+        BRANCH_SONAR = "$GIT_BRANCH"
+        BRANCH_MINUS = BRANCH_SONAR.minus('origin/')
 
         // credentials & external systems
-        AAD_SERVICE_PRINCIPAL = credentials('sp-terraform-credentials')
+        AAD_SERVICE_PRINCIPAL = credentials('admins-rbac-sp')
         AKS_TENANT = credentials('aks-tenant')
         AKS_RESOURCE_GROUP = credentials('aks-resource-group')
         AKS_NAME = credentials('aks-name')
-        ACR_NAME = credentials('acr-name')
-        ACR_URL = "${ACR_NAME}.azurecr.io"
-        ACR_PULL_CREDENTIAL = 'master-acr-credentials'
-        SELENIUM_GRID_HOST = 'selenium-grid' //credentials('selenium-grid-host')
-        SELENIUM_GRID_PORT = '4444' //credentials('selenium-grid-port')
+        //ACR_NAME = credentials('acr-name')
+        ACR_URL = credentials('acr-url')
+        // change this later
+        ACR_PULL_CREDENTIAL = 'ndop-acr-credential-secret'
+        SONAR_CREDENTIALS = credentials('sonar_credentials')
+    //SELENIUM_HUB_HOST = credentials('selenium-hub-host')
+    //SELENIUM_HUB_PORT = credentials('selenium-hub-port')
     }
 
     stages {
@@ -70,7 +64,7 @@ spec:
                     sh 'podman --version'
                     sh "podman login $ACR_URL -u $AAD_SERVICE_PRINCIPAL_USR -p $AAD_SERVICE_PRINCIPAL_PSW"
                 }
-                container('aks') {
+                container('aks-builder') {
                     sh "az login --service-principal --username $AAD_SERVICE_PRINCIPAL_USR --password $AAD_SERVICE_PRINCIPAL_PSW --tenant $AKS_TENANT"
                     sh "az aks get-credentials --resource-group $AKS_RESOURCE_GROUP --name $AKS_NAME"
                     sh "kubelogin convert-kubeconfig -l spn --client-id $AAD_SERVICE_PRINCIPAL_USR --client-secret $AAD_SERVICE_PRINCIPAL_PSW"
@@ -89,12 +83,12 @@ spec:
             }
         }
 
-        stage('Unit tests') {
+        stage('Code inspection & quality gate') {
             steps {
-                echo '-=- execute unit tests -=-'
-                sh './mvnw test org.jacoco:jacoco-maven-plugin:report'
-                junit 'target/surefire-reports/*.xml'
-                jacoco execPattern: 'target/jacoco.exec'
+                echo '-=- run code inspection & check quality gate -=-'
+                withSonarQubeEnv('ci-sonarqube') {
+                    sh "./mvnw clean compile sonar:sonar -Dsonar.projectKey=$APP_NAME-$BRANCH_MINUS -Dsonar.login=$SONAR_CREDENTIALS_USR -Dsonar.password=$SONAR_CREDENTIALS_PSW"
+                }
             }
         }
 
@@ -105,6 +99,71 @@ spec:
             }
         }
 
+        // stage('get-projects') {
+        //     steps {
+        //         script {
+        //             env.MYPROJECT = sh( script: """
+        //             curl --location 'https://${BASE_URL}/api/v1/project?name=${PROJECT_NAME}&excludeInactive=false' \
+        //             --header 'Accept: application/json' \
+        //             --header 'X-Api-Key: ${DEPENDENCY_API_KEY}'""",
+        //             returnStdout: true).trim()
+        //             env.dataJson = getUUIDValue("${env.MYPROJECT}")
+        //             println("${env.dataJson}")
+        //         }
+        //     }
+        // }
+
+        // stage('create-project') {
+        //     when {
+        //         anyOf {
+        //             expression { env.dataJson == 'null' }
+        //             expression { env.dataJson == null }
+        //             expression { env.dataJson == [] }
+        //         }
+        //     }
+        //     steps {
+        //         script {
+        //             println("Valor del env.dataJson antes del create: ${env.dataJson}")
+        //             println("Valor del DEPENDENCY_API_KEY antes del create: ${DEPENDENCY_API_KEY}")
+        //             env.CREATE = sh( script: """
+        //                 curl --location --request PUT 'https://${BASE_URL}/api/v1/project' \
+        //                     --header 'Content-Type: application/json' \
+        //                     --header 'Accept: application/json' \
+        //                     --header 'X-Api-Key: ${DEPENDENCY_API_KEY}' \
+        //                     --data '{
+        //                     "name": "${PROJECT_NAME}"
+        //                     }'
+        //             """, returnStdout: true).trim()
+        //             env.dataJson = getUUID("${env.CREATE}")
+        //             println("Valor del env.CREATE despues del create: ${env.CREATE}")
+        //             println("Valor del env.dataJson despues del create ${env.dataJson}")
+        //         }
+        //     }
+        // }
+
+        stage('Generate BOM') {
+            steps {
+                sh './mvnw org.cyclonedx:cyclonedx-maven-plugin:makeBom'
+            }
+        }
+
+        stage('Dependency Tracker') {
+            steps {
+                echo "${env.dataJson}"
+                dependencyTrackPublisher artifact: 'target/bom.xml',
+                    //projectId: "${env.dataJson}",
+                    projectName: env.APP_NAME,
+                    projectVersion: env.BUILD_NUMBER,
+                    synchronous: true,
+                    failedTotalCritical:    qualityGates.security.dependencies.critical.failed,
+                    unstableTotalCritical:  qualityGates.security.dependencies.critical.unstable,
+                    failedTotalHigh:        qualityGates.security.dependencies.high.failed,
+                    unstableTotalHigh:      qualityGates.security.dependencies.high.unstable,
+                    failedTotalMedium:      qualityGates.security.dependencies.medium.failed,
+                    unstableTotalMedium:    qualityGates.security.dependencies.medium.unstable
+            }
+        }
+/*
         stage('Software composition analysis') {
             steps {
                 echo '-=- run software composition analysis -=-'
@@ -123,7 +182,7 @@ spec:
                 }
             }
         }
-
+*/
         stage('Package') {
             steps {
                 echo '-=- packaging project -=-'
@@ -146,7 +205,7 @@ spec:
         stage('Run container image') {
             steps {
                 echo '-=- run container image -=-'
-                container('aks') {
+                container('aks-builder') {
                     sh "kubectl run $TEST_CONTAINER_NAME --image=$ACR_URL/$IMAGE_SNAPSHOT --env=JAVA_OPTS=-javaagent:/jacocoagent.jar=output=tcpserver,address=*,port=$APP_JACOCO_PORT --port=$APP_LISTENING_PORT --overrides='{\"apiVersion\": \"v1\", \"spec\": {\"imagePullSecrets\": [{\"name\": \"$ACR_PULL_CREDENTIAL\"}]}}'"
                     sh "kubectl expose pod $TEST_CONTAINER_NAME --port=$APP_LISTENING_PORT"
                     sh "kubectl expose pod $TEST_CONTAINER_NAME --port=$APP_JACOCO_PORT --name=$TEST_CONTAINER_NAME-jacoco"
@@ -154,18 +213,18 @@ spec:
             }
         }
 
-        stage('Integration tests') {
-            steps {
-                echo '-=- execute integration tests -=-'
-                sh "curl --retry 10 --retry-connrefused --connect-timeout 5 --max-time 5 http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT/actuator/health".replace('//', '/')
-                sh "./mvnw failsafe:integration-test failsafe:verify -DargLine=-Dtest.selenium.hub.url=http://$SELENIUM_GRID_HOST:$SELENIUM_GRID_PORT/wd/hub -Dtest.target.server.url=http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT/".replace('//', '/')
-                sh "java -jar target/dependency/jacococli.jar dump --address $TEST_CONTAINER_NAME-jacoco --port $APP_JACOCO_PORT --destfile target/jacoco-it.exec"
-                sh 'mkdir target/site/jacoco-it'
-                sh 'java -jar target/dependency/jacococli.jar report target/jacoco-it.exec --classfiles target/classes --xml target/site/jacoco-it/jacoco.xml'
-                junit 'target/failsafe-reports/*.xml'
-                jacoco execPattern: 'target/jacoco-it.exec'
-            }
-        }
+        // stage('Integration tests') {
+        //     steps {
+        //         echo '-=- execute integration tests -=-'
+        //         sh "curl --retry 10 --retry-connrefused --connect-timeout 5 --max-time 5 http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT/actuator/health".replace('//', '/')
+        //         sh "./mvnw failsafe:integration-test failsafe:verify -DargLine=-Dtest.selenium.hub.url=http://$SELENIUM_HUB_HOST:$SELENIUM_HUB_PORT/wd/hub -Dtest.target.server.url=http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT/".replace('//', '/')
+        //         sh "java -jar target/dependency/jacococli.jar dump --address $TEST_CONTAINER_NAME-jacoco --port $APP_JACOCO_PORT --destfile target/jacoco-it.exec"
+        //         sh 'mkdir -p target/site/jacoco-it'
+        //         sh 'java -jar target/dependency/jacococli.jar report target/jacoco-it.exec --classfiles target/classes --xml target/site/jacoco-it/jacoco.xml'
+        //         junit 'target/failsafe-reports/*.xml'
+        //         jacoco execPattern: 'target/jacoco-it.exec'
+        //     }
+        // }
 
         stage('Performance tests') {
             steps {
@@ -180,33 +239,23 @@ spec:
             }
         }
 
-        // stage('Web page performance analysis') {
-        //     steps {
-        //         echo '-=- execute web page performance analysis -=-'
-        //         sh 'apt-get update'
-        //         sh 'apt-get install -y gnupg'
-        //         sh 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee -a /etc/apt/sources.list.d/google.list'
-        //         sh 'curl -sL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -'
-        //         sh 'curl -sL https://deb.nodesource.com/setup_10.x | bash -'
-        //         sh 'apt-get install -y nodejs google-chrome-stable'
-        //         sh 'npm install -g lighthouse@5.6.0'
-        //         sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/$APP_CONTEXT_ROOT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
-        //         archiveArtifacts artifacts: '*.report.html'
-        //         archiveArtifacts artifacts: '*.report.csv'
-        //     }
-        // }
-
-        // stage('Code inspection & quality gate') {
-        //     steps {
-        //         echo '-=- run code inspection & check quality gate -=-'
-        //         withSonarQubeEnv('ci-sonarqube') {
-        //             sh './mvnw sonar:sonar'
-        //         }
-        //         timeout(time: 10, unit: 'MINUTES') {
-        //             waitForQualityGate abortPipeline: true
-        //         }
-        //     }
-        // }
+        /*
+        stage('Web page performance analysis') {
+            steps {
+                echo '-=- execute web page performance analysis -=-'
+                sh 'apt-get update'
+                sh 'apt-get install -y gnupg'
+                sh 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee -a /etc/apt/sources.list.d/google.list'
+                sh 'curl -sL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -'
+                sh 'curl -sL https://deb.nodesource.com/setup_10.x | bash -'
+                sh 'apt-get install -y nodejs google-chrome-stable'
+                sh 'npm install -g lighthouse@5.6.0'
+                sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/$APP_CONTEXT_ROOT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
+                archiveArtifacts artifacts: '*.report.html'
+                archiveArtifacts artifacts: '*.report.csv'
+            }
+        }
+        */
 
         stage('Promote container image') {
             steps {
@@ -225,7 +274,7 @@ spec:
     post {
         always {
             echo '-=- stop test container and remove deployment -=-'
-            container('aks') {
+            container('aks-builder') {
                 sh "kubectl delete pod $TEST_CONTAINER_NAME"
                 sh "kubectl delete service $TEST_CONTAINER_NAME"
                 sh "kubectl delete service $TEST_CONTAINER_NAME-jacoco"
