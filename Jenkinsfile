@@ -9,6 +9,7 @@ pipeline {
     }
 
     environment {
+        SELENIUM_HUB_URL = "http://selenium-hub:4444/wd/hub"
         BASE_URL = credentials('url-dependency')
         DEPENDENCY_API_KEY = credentials('dependency--api-key')
         PROJECT_NAME = 'prueba_dt'
@@ -128,7 +129,12 @@ pipeline {
                 echo '-=- packaging project -=-'
                 sh './mvnw package -DskipTests'
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-            }
+                sh 'wget https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar' 
+                sh 'java -jar selenium-server-standalone-3.141.59.jar -role hub &' 
+                sh 'java -jar selenium-server-standalone-3.141.59.jar -role node -hub ${SELENIUM_HUB_URL} -browser browserName=chrome &' 
+                sh 'java -jar selenium-server-standalone-3.141.59.jar -role node -hub ${SELENIUM_HUB_URL} -browser browserName=firefox &' 
+                sh 'mvn test -Dtest=MySeleniumTest' 
+            } 
         }
 
         stage('Build & push container image') {
