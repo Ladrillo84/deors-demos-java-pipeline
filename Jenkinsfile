@@ -34,8 +34,8 @@ pipeline {
         // change this later
         ACR_PULL_CREDENTIAL = 'ndop-acr-credential-secret'
         SONAR_CREDENTIALS = credentials('sonar-new-credentials')
-    //SELENIUM_HUB_HOST = credentials('selenium-hub-host')
-    //SELENIUM_HUB_PORT = credentials('selenium-hub-port')
+        SELENIUM_HUB_HOST = credentials('selenium-hub-host')
+        SELENIUM_HUB_PORT = credentials('selenium-hub-port')
     }
 
     stages {
@@ -153,18 +153,18 @@ pipeline {
             }
         }
 
-        // stage('Integration tests') {
-        //     steps {
-        //         echo '-=- execute integration tests -=-'
-        //         sh "curl --retry 10 --retry-connrefused --connect-timeout 5 --max-time 5 http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT/actuator/health".replace('//', '/')
-        //         sh "./mvnw failsafe:integration-test failsafe:verify -DargLine=-Dtest.selenium.hub.url=http://$SELENIUM_HUB_HOST:$SELENIUM_HUB_PORT/wd/hub -Dtest.target.server.url=http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT/".replace('//', '/')
-        //         sh "java -jar target/dependency/jacococli.jar dump --address $TEST_CONTAINER_NAME-jacoco --port $APP_JACOCO_PORT --destfile target/jacoco-it.exec"
-        //         sh 'mkdir -p target/site/jacoco-it'
-        //         sh 'java -jar target/dependency/jacococli.jar report target/jacoco-it.exec --classfiles target/classes --xml target/site/jacoco-it/jacoco.xml'
-        //         junit 'target/failsafe-reports/*.xml'
-        //         jacoco execPattern: 'target/jacoco-it.exec'
-        //     }
-        // }
+        stage('Integration tests') {
+             steps {
+                 echo '-=- execute integration tests -=-'
+                 sh "curl --retry 10 --retry-connrefused --connect-timeout 5 --max-time 5 http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT/actuator/health".replace('//', '/')
+                 sh "./mvnw failsafe:integration-test failsafe:verify -DargLine=-Dtest.selenium.hub.url=http://$SELENIUM_HUB_HOST:$SELENIUM_HUB_PORT/wd/hub -Dtest.target.server.url=http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT/".replace('//', '/')
+                 sh "java -jar target/dependency/jacococli.jar dump --address $TEST_CONTAINER_NAME-jacoco --port $APP_JACOCO_PORT --destfile target/jacoco-it.exec"
+                 sh 'mkdir -p target/site/jacoco-it'
+                 sh 'java -jar target/dependency/jacococli.jar report target/jacoco-it.exec --classfiles target/classes --xml target/site/jacoco-it/jacoco.xml'
+                 junit 'target/failsafe-reports/*.xml'
+                 jacoco execPattern: 'target/jacoco-it.exec'
+             }
+         }
 
         stage('Performance tests') {
             steps {
@@ -179,7 +179,7 @@ pipeline {
             }
         }
 
-        /*
+        
         stage('Web page performance analysis') {
             steps {
                 echo '-=- execute web page performance analysis -=-'
@@ -195,7 +195,7 @@ pipeline {
                 archiveArtifacts artifacts: '*.report.csv'
             }
         }
-        */
+        
 
         stage('Promote container image') {
             steps {
