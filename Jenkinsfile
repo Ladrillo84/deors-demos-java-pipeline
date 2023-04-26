@@ -127,13 +127,15 @@ pipeline {
         stage('Package') {
             steps {
                 echo '-=- packaging project -=-'
-                sh './mvnw package -DskipTests'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                sh 'wget https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar' 
-                sh 'java -jar selenium-server-standalone-3.141.59.jar -role hub &' 
-                sh 'java -jar selenium-server-standalone-3.141.59.jar -role node -hub ${SELENIUM_HUB_URL} -browser browserName=chrome &' 
-                sh 'java -jar selenium-server-standalone-3.141.59.jar -role node -hub ${SELENIUM_HUB_URL} -browser browserName=firefox &' 
-                sh 'mvn test -Dtest=MySeleniumTest' 
+                container('aks-builder') {
+                    sh './mvnw package -DskipTests'
+                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                    sh 'wget https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar' 
+                    sh 'java -jar selenium-server-standalone-3.141.59.jar -role hub &' 
+                    sh 'java -jar selenium-server-standalone-3.141.59.jar -role node -hub ${SELENIUM_HUB_URL} -browser browserName=chrome &' 
+                    sh 'java -jar selenium-server-standalone-3.141.59.jar -role node -hub ${SELENIUM_HUB_URL} -browser browserName=firefox &' 
+                    sh 'mvn test -Dtest=MySeleniumTest'
+                }
             } 
         }
 
