@@ -33,7 +33,7 @@ pipeline {
         ACR_URL = credentials('acr-url')
         // change this later
         ACR_PULL_CREDENTIAL = 'ndop-acr-credential-secret'
-        SONAR_CREDENTIALS = credentials('sonar_credentials')
+        SONAR_CREDENTIALS = credentials('sonar-new-credentials')
     //SELENIUM_HUB_HOST = credentials('selenium-hub-host')
     //SELENIUM_HUB_PORT = credentials('selenium-hub-port')
     }
