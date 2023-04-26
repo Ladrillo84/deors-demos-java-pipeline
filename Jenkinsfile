@@ -134,7 +134,7 @@ pipeline {
                     sh 'java -jar selenium-server-standalone-3.141.59.jar -role hub &' 
                     sh 'java -jar selenium-server-standalone-3.141.59.jar -role node -hub ${SELENIUM_HUB_URL} -browser browserName=chrome &' 
                     sh 'java -jar selenium-server-standalone-3.141.59.jar -role node -hub ${SELENIUM_HUB_URL} -browser browserName=firefox &' 
-                    sh 'mvn test -Dtest=MySeleniumTest'
+                    sh 'mvn test -Dtest=HelloServiceIntegrationTest.java'
                 }
             } 
         }
