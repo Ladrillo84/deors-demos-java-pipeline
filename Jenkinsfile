@@ -103,7 +103,7 @@ pipeline {
                     unstableTotalMedium:    qualityGates.security.dependencies.medium.unstable
             }
         }
-/*
+
         stage('Software composition analysis') {
             steps {
                 echo '-=- run software composition analysis -=-'
@@ -122,7 +122,7 @@ pipeline {
                 }
             }
         }
-*/
+
         stage('Package') {
             steps {
                 echo '-=- packaging project -=-'
