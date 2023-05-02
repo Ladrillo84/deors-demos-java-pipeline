@@ -38,7 +38,9 @@ pipeline {
         SELENIUM_HUB_HOST = credentials('selenium-hub-host')
         SELENIUM_HUB_PORT = credentials('selenium-hub-port')
     }
-
+    
+    
+    stages{
         stage('Web page performance analysis') {
             steps {
                 echo '-=- execute web page performance analysis -=-'
