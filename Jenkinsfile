@@ -198,6 +198,19 @@ pipeline {
             }
         }
         
+        stage('Publish Lighthouse Report') {
+          steps {
+            publishHTML(target: [
+              allowMissing: false,
+              alwaysLinkToLastBuild: false,
+              keepAll: true,
+              reportDir: '/home/jenkins/agent/workspace/pipelineHidalgo/',
+              reportFiles: '*.report.html',
+              reportName: 'Lighthouse Report'
+            ])
+          }
+        }
+        
 
         stage('Promote container image') {
             steps {
