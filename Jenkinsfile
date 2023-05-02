@@ -194,7 +194,9 @@ pipeline {
                     sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
                     archiveArtifacts artifacts: '*.report.html'
                     archiveArtifacts artifacts: '*.report.csv'
-                    sh "lighthouse --view"
+                    //sh "lighthouse --view"
+                       sh 'npx lighthouse-ci http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --jsonReport --report=.'
+                        lighthouseReport('./report.json')
                 }
             }
         }
