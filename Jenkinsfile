@@ -5,7 +5,7 @@ import groovy.json.JsonSlurper
 
 pipeline {
     agent {
-        kubernetes(containerCall(imageName: ACR_NAME, credentialSecret: SECRET))
+        kubernetes(containerCall(imageName: ACR_NAME, credentialSecret: SECRET_NAME))
     }
 
     environment {
