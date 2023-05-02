@@ -180,7 +180,7 @@ pipeline {
         }
 
         
-        /*stage('Web page performance analysis') {
+        stage('Web page performance analysis') {
             steps {
                 echo '-=- execute web page performance analysis -=-'
                 sh 'apt-get update'
@@ -194,7 +194,7 @@ pipeline {
                 archiveArtifacts artifacts: '*.report.html'
                 archiveArtifacts artifacts: '*.report.csv'
             }
-        }*/
+        }
         
 
         stage('Promote container image') {
