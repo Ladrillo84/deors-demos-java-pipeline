@@ -208,7 +208,7 @@ pipeline {
         } 
     } 
 }
-/*        
+*/        
 
         stage('Promote container image') {
             steps {
