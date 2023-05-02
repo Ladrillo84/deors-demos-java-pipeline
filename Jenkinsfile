@@ -191,6 +191,8 @@ pipeline {
                     sh 'curl -sL https://deb.nodesource.com/setup_16.x | bash -'
                     sh 'apt-get install -y nodejs google-chrome-stable'
                     sh 'npm install -g lighthouse@5.6.0'
+                    sh 'npx lighthouse-ci https://www.example.com --jsonReport --report=.'
+                        lighthouseReport('./report.json')
                     sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
                     archiveArtifacts artifacts: '*.report.html'
                     archiveArtifacts artifacts: '*.report.csv'
