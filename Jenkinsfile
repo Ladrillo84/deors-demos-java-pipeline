@@ -55,6 +55,7 @@ pipeline {
                 sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/$APP_CONTEXT_ROOT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
                 archiveArtifacts artifacts: '*.report.html'
                 archiveArtifacts artifacts: '*.report.csv'
+                sh "lighthouse --view http://127.0.0.1:9001"
             }
         }
 
