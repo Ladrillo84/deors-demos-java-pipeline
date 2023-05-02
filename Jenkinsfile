@@ -190,7 +190,7 @@ pipeline {
                     sh 'curl -sL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -'
                     sh 'curl -sL https://deb.nodesource.com/setup_16.x | bash -'
                     sh 'apt-get install -y nodejs google-chrome-stable'
-                    sh 'npm install -g lighthouse@5.6.0'
+                    sh 'npm install -g lighthouse'
                     sh 'npm run lighthouse'
                     publishHTML (target: [
                       allowMissing: false,
