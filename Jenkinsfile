@@ -202,7 +202,7 @@ stage('Lighthouse') {
     steps { 
         script { // Establece la conexión con tu cluster de Kubernetes 
             //sh 'kubectl config use-context <context-name>' // Ejecuta Lighthouse para generar el informe JSON 
-            sh 'lighthouse http://lighthouse-lighthouse-ci:9001 --emulated-form-factor=desktop --output=json --output-path=lighthouse-report.json --chrome-flags="--headless --no-sandbox --disable-gpu --remote-debugging-port=9001" --quiet'// Copia el informe JSON generado a tu servidor de Lighthouse en Kubernetes 
+            sh 'lighthouse http://lighthouse-lighthouse-ci --emulated-form-factor=desktop --output=json --output-path=lighthouse-report.json --chrome-flags="--headless --no-sandbox --disable-gpu --remote-debugging-port=9001" --quiet'// Copia el informe JSON generado a tu servidor de Lighthouse en Kubernetes 
             //sh 'kubectl cp lighthouse-report.json <pod-name>:<path-to-destination> --container=<container-name>' // Borra el archivo temporal del informe JSON sh 'rm lighthouse-report.json' 
         } 
     } 
