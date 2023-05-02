@@ -183,7 +183,7 @@ pipeline {
         stage('Web page performance analysis') {
             steps {
                 echo '-=- execute web page performance analysis -=-'
-                sh 'apt-get update'
+                //sh 'apt-get update'
                 sh 'apt-get install -y gnupg'
                 sh 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee -a /etc/apt/sources.list.d/google.list'
                 sh 'curl -sL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -'
