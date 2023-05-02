@@ -195,7 +195,7 @@ pipeline {
                     archiveArtifacts artifacts: '*.report.html'
                     archiveArtifacts artifacts: '*.report.csv'
                     //sh "lighthouse --view"
-                       sh 'npx lighthouse-ci http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --jsonReport --report=.'
+                       sh 'npx lighthouse-ci http://127.0.0.1:9001 --jsonReport --report=.'
                         lighthouseReport('./report.json')
                 }
             }
