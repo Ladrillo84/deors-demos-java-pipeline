@@ -49,7 +49,7 @@ pipeline {
                     sh 'apt-get install -y gnupg'
                     sh 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee -a /etc/apt/sources.list.d/google.list'
                     sh 'curl -sL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -'
-                    sh 'curl -sL https://deb.nodesource.com/setup_10.x | bash -'
+                    sh 'curl -sL https://deb.nodesource.com/setup_16.x | bash -'
                     sh 'apt-get install -y nodejs google-chrome-stable'
                     sh 'npm install -g lighthouse@5.6.0'
                     sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/$APP_CONTEXT_ROOT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
@@ -67,7 +67,6 @@ pipeline {
             container('aks-builder') {
                 sh "kubectl delete pod $TEST_CONTAINER_NAME"
                 sh "kubectl delete service $TEST_CONTAINER_NAME"
-                sh "kubectl delete service $TEST_CONTAINER_NAME-jacoco"
             }
         }
     }
