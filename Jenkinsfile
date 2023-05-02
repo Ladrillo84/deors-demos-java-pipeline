@@ -194,11 +194,12 @@ pipeline {
                     sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
                     archiveArtifacts artifacts: '*.report.html'
                     archiveArtifacts artifacts: '*.report.csv'
+                    sh "lighthouse --view"
                 }
             }
         }
         
-stage('Lighthouse') { 
+/*stage('Lighthouse') { 
     steps { 
         script { // Establece la conexión con tu cluster de Kubernetes 
             //sh 'kubectl config use-context <context-name>' // Ejecuta Lighthouse para generar el informe JSON 
@@ -207,7 +208,7 @@ stage('Lighthouse') {
         } 
     } 
 }
-        
+/*        
 
         stage('Promote container image') {
             steps {
