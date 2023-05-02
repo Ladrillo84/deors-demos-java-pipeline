@@ -2,6 +2,7 @@
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
 
 pipeline {
     agent {
@@ -192,15 +193,6 @@ pipeline {
                     sh 'apt-get update'
                     sh 'apt-get install -y nodejs google-chrome-stable'
                     sh 'npm install -g lighthouse'
-                    sh 'npm run lighthouse'
-                    publishHTML (target: [
-                      allowMissing: false,
-                      alwaysLinkToLastBuild: false,
-                      keepAll: true,
-                      reportDir: '.',
-                      reportFiles: 'lighthouse-report.html',
-                      reportName: "Lighthouse"
-                    ])
                     sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
                     archiveArtifacts artifacts: '*.report.html'
                     archiveArtifacts artifacts: '*.report.csv'
