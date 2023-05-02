@@ -39,8 +39,6 @@ pipeline {
         SELENIUM_HUB_PORT = credentials('selenium-hub-port')
     }
 
-    stages {
-        
         stage('Web page performance analysis') {
             steps {
                 echo '-=- execute web page performance analysis -=-'
@@ -52,9 +50,22 @@ pipeline {
                     sh 'curl -sL https://deb.nodesource.com/setup_16.x | bash -'
                     sh 'apt-get install -y nodejs google-chrome-stable'
                     sh 'npm install -g lighthouse@5.6.0'
-                    sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
+                    sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
                     archiveArtifacts artifacts: '*.report.html'
                     archiveArtifacts artifacts: '*.report.csv'
+                }
+            }
+        }    
+
+        stage('Promote container image') {
+            steps {
+                echo '-=- promote container image -=-'
+                container('podman') {
+                    // use latest or a non-snapshot tag to deploy to production
+                    sh "podman tag $IMAGE_SNAPSHOT $ACR_URL/$IMAGE_NAME:$APP_VERSION"
+                    sh "podman push $ACR_URL/$IMAGE_NAME:$APP_VERSION"
+                    sh "podman tag $IMAGE_SNAPSHOT $ACR_URL/$IMAGE_NAME:latest"
+                    sh "podman push $ACR_URL/$IMAGE_NAME:latest"
                 }
             }
         }
@@ -66,6 +77,7 @@ pipeline {
             container('aks-builder') {
                 sh "kubectl delete pod $TEST_CONTAINER_NAME"
                 sh "kubectl delete service $TEST_CONTAINER_NAME"
+                sh "kubectl delete service $TEST_CONTAINER_NAME-jacoco"
             }
         }
     }
