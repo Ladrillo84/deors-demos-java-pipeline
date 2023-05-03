@@ -184,6 +184,7 @@ pipeline {
         stage('Web page performance analysis') {
             steps {
                 echo '-=- execute web page performance analysis -=-'
+                container('aks-builder') {
                     sh 'apt-get update'
                     sh 'apt-get install -y gnupg'
                     sh 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee -a /etc/apt/sources.list.d/google.list'
@@ -198,6 +199,7 @@ pipeline {
                     //archiveArtifacts artifacts: '*.report.csv'
                     sh 'npx lighthouse-ci http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --jsonReport --report=.'
                         lighthouseReport('./report.json')
+                }
             }
         }
         
