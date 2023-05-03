@@ -193,7 +193,33 @@ pipeline {
                     //sh 'curl -sL https://deb.nodesource.com/setup_16.x | bash -'
                     //sh 'apt-get install -y nodejs google-chrome-stable'
                     //sh 'npm install -g lighthouse'
-                    sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
+                      sh """
+                         lhci sh -c 'cat > lhci-config.json << EOF
+                        {
+                          "ci": {
+                            "collect": {
+                             "numberOfRuns": 1,
+                             "settings": {
+                             "chromeFlags": "--no-sandbox --headless"
+                            }
+                          },
+                          "assert": {
+                         "preset": "lighthouse:recommended",
+                            "assertions": {
+                              "categories:performance": ["error", {"minScore": 0.75}],
+                              "categories:accessibility": ["error", {"minScore": 0.75}],
+                              "categories:best-practices": ["error", {"minScore": 0.90}],
+                              "categories:seo": ["error", {"minScore": 0.90}]
+                              }
+                            }
+                          }
+                        }
+                        EOF'
+                    """
+                    sh """ mkdir lhresults """
+                    sh """ lhci autorun --config="./lhci-config.json" --collect.url=https://lighthouse-lighthouse-ci:9001 || true """
+                    //sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
+                    sh """ cp lhci:/.lighthouseci ./lhresults/ """
                     archiveArtifacts artifacts: '*.report.html'
                     archiveArtifacts artifacts: '*.report.csv'
                 }
