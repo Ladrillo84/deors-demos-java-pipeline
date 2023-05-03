@@ -188,37 +188,11 @@ pipeline {
                     //sh 'apt-get update'
                     //sh 'apt-get install -y gnupg'
                     //sh 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee -a /etc/apt/sources.list.d/google.list'
-                    //sh 'curl -sL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -'
-                    //sh 'curl -sL https://deb.nodesource.com/setup_16.x | bash -'
+                    sh 'curl -sL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -'
+                    sh 'curl -sL https://deb.nodesource.com/setup_16.x | bash -'
                     //sh 'apt-get install -y nodejs google-chrome-stable'
                     //sh 'npm install -g lighthouse'
-                      sh """
-                         lhci sh -c 'cat > lhci-config.json << EOF
-                        {
-                          "ci": {
-                            "collect": {
-                             "numberOfRuns": 1,
-                             "settings": {
-                             "chromeFlags": "--no-sandbox --headless"
-                            }
-                          },
-                          "assert": {
-                         "preset": "lighthouse:recommended",
-                            "assertions": {
-                              "categories:performance": ["error", {"minScore": 0.75}],
-                              "categories:accessibility": ["error", {"minScore": 0.75}],
-                              "categories:best-practices": ["error", {"minScore": 0.90}],
-                              "categories:seo": ["error", {"minScore": 0.90}]
-                              }
-                            }
-                          }
-                        }
-                        EOF'
-                    """
-                    sh """ mkdir lhresults """
-                    sh """ lhci autorun --config="./lhci-config.json" --collect.url=https://lighthouse-lighthouse-ci:9001 || true """
-                    //sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
-                    sh """ cp lhci:/.lighthouseci ./lhresults/ """
+                    sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
                     archiveArtifacts artifacts: '*.report.html'
                     archiveArtifacts artifacts: '*.report.csv'
                 }
