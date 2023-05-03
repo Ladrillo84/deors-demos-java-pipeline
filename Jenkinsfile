@@ -185,19 +185,7 @@ pipeline {
             steps {
                 echo '-=- execute web page performance analysis -=-'
                 container('lighthouse-builder') {
-                    //sh 'apt-get update'
-                    //sh 'apt-get install -y gnupg'
-                    //sh 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee -a /etc/apt/sources.list.d/google.list'
-                    //sh 'curl -sL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -'
-                    //sh 'curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null'
-                    //sh 'curl -sL https://deb.nodesource.com/setup_16.x | bash -'
-                    //sh 'echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list'
-                    //sh 'apt-get install -y nodejs google-chrome-stable'
-                    //sh 'npm install -g lighthouse-ci'
-                    //sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
-                    //archiveArtifacts artifacts: '*.report.html'
-                    //archiveArtifacts artifacts: '*.report.csv'
-                    sh 'npx lighthouse-ci http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --jsonReport --report=.'
+                    sh "npx lighthouse-ci http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT" + "hello --jsonReport --report=."
                         lighthouseReport('./report.json')
                 }
             }
