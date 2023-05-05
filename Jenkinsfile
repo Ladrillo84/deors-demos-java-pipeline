@@ -185,7 +185,8 @@ pipeline {
             steps {
                 echo '-=- execute web page performance analysis -=-'
                 container('lighthouse-builder') {
-                    sh "lighthouse-ci http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT" + "hello --jsonReport --report=."
+                    sh "lighthouse-ci http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT" + "hello --jsonReport --report=. --report=./ --filename=report.html"
+                    archiveArtifacts artifacts: '*.report.html'
                     lighthouseReport('./report.json')'
                 }
             }
