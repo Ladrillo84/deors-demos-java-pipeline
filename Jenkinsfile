@@ -188,7 +188,7 @@ pipeline {
                     sh "lighthouse-ci http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT" + "hello --jsonReport --report=. --filename=report.html"
                     //sh "lighthouse-ci https://accenture.com --jsonReport --report=. --filename=report.html"
                     lighthouseReport('./reports.json')
-                    archiveArtifacts artifacts: '*.report.html'
+                    archiveArtifacts artifacts: 'report.html'
                 }
             }
         }
