@@ -186,14 +186,11 @@ pipeline {
                 echo '-=- execute web page performance analysis -=-'
                 def lighthousejob = build job: "pipelineLighthouse",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME"),
                                                        string(name: 'APP_CONTEXT_ROOT', value: "$env.APP_CONTEXT_ROOT"),
-                                                       string(name: 'APP_LISTENING_PORT', value: String.valueOf("$env.APP_LISTENING_PORT"))]
-                }
+                                                       string(name: 'APP_LISTENING_PORT', value: String.valueOf("$env.APP_LISTENING_PORT"))]             
             }
         }
         
         
-     
-
         stage('Promote container image') {
             steps {
                 echo '-=- promote container image -=-'
@@ -208,6 +205,7 @@ pipeline {
         }
     }
 
+    
     post {
         always {
             echo '-=- stop test container and remove deployment -=-'
