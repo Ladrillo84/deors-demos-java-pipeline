@@ -38,48 +38,14 @@ pipeline {
         SELENIUM_HUB_HOST = credentials('selenium-hub-host')
         SELENIUM_HUB_PORT = credentials('selenium-hub-port')
     }
-    
-    
-    stages{
-        stage('Web page performance analysis') {
+    stages {
+        stage('call antoher pipeline') {
             steps {
-                echo '-=- execute web page performance analysis -=-'
-                container('aks-builder') {
-                    sh 'apt-get update'
-                    sh 'apt-get install -y gnupg'
-                    sh 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee -a /etc/apt/sources.list.d/google.list'
-                    sh 'curl -sL https://dl.google.com/linux/linux_signing_key.pub | apt-key add -'
-                    sh 'curl -sL https://deb.nodesource.com/setup_16.x | bash -'
-                    sh 'apt-get install -y nodejs google-chrome-stable'
-                    sh 'npm install -g lighthouse@5.6.0'
-                    sh "lighthouse http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT/hello --output=html --output=csv --chrome-flags=\"--headless --no-sandbox\""
-                    archiveArtifacts artifacts: '*.report.html'
-                    archiveArtifacts artifacts: '*.report.csv'
+                script {
+                    prueba = build job: "calltestanotheragent",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME"), 
+                                                                              string(name: 'APP_CONTEXT_ROOT', value: "$env.APP_CONTEXT_ROOT"),
+                                                                              string(name: 'APP_LISTENING_PORT', value: "$env.APP_LISTENING_PORT")]
                 }
-            }
-        }    
-
-        stage('Promote container image') {
-            steps {
-                echo '-=- promote container image -=-'
-                container('podman') {
-                    // use latest or a non-snapshot tag to deploy to production
-                    sh "podman tag $IMAGE_SNAPSHOT $ACR_URL/$IMAGE_NAME:$APP_VERSION"
-                    sh "podman push $ACR_URL/$IMAGE_NAME:$APP_VERSION"
-                    sh "podman tag $IMAGE_SNAPSHOT $ACR_URL/$IMAGE_NAME:latest"
-                    sh "podman push $ACR_URL/$IMAGE_NAME:latest"
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            echo '-=- stop test container and remove deployment -=-'
-            container('aks-builder') {
-                sh "kubectl delete pod $TEST_CONTAINER_NAME"
-                sh "kubectl delete service $TEST_CONTAINER_NAME"
-                sh "kubectl delete service $TEST_CONTAINER_NAME-jacoco"
             }
         }
     }
