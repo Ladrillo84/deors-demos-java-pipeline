@@ -42,9 +42,7 @@ pipeline {
         stage('call antoher pipeline') {
             steps {
                 script {
-                    prueba = build job: "pipelineLighthouse",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME"), 
-                                                                              string(name: 'APP_CONTEXT_ROOT', value: "$env.APP_CONTEXT_ROOT"),
-                                                                              string(name: 'APP_LISTENING_PORT', value: "$env.APP_LISTENING_PORT")]
+                    prueba = build job: "pipelineLighthouse",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME")]
                 }
             }
         }
