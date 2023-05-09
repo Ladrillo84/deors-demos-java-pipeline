@@ -4,7 +4,7 @@ performance:
 accessibility:
       unstable: 80
       failed: 60
-best practices:
+best_practices:
       unstable: 80
       failed: 60
 seo:
