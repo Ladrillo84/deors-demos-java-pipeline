@@ -3,11 +3,11 @@ performance:
       failed: 600 
 accessibility:
       unstable: 80
-      failed: 60
+      failed: 600
 best_practices:
       unstable: 80
-      failed: 60
+      failed: 600
 seo:
       unstable: 500
-      failed: 60 
+      failed: 600 
       
