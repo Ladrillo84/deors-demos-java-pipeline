@@ -9,5 +9,5 @@ best_practices:
       failed: 60
 seo:
       unstable: 80
-      failed: 60
+      failed: 60 
       
