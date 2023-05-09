@@ -188,7 +188,7 @@ pipeline {
                     def lighthousejob = build job: "pipelineLighthouse",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME"),
                                                        string(name: 'APP_CONTEXT_ROOT', value: "$env.APP_CONTEXT_ROOT"),
                                                        string(name: 'APP_LISTENING_PORT', value: String.valueOf("$env.APP_LISTENING_PORT"))]
-                    copyArtifacts(projectName: "pipelineLighthouse", selector: specific("${lighthousejob.number}")), filter: "./report.json")                    
+                    copyArtifacts(projectName: "pipelineLighthouse", selector: specific("${lighthousejob.number}"), filter: "./report.json")                    
                     lighthouseReport('./report.json')
                 }
             }
