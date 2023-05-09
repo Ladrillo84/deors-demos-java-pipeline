@@ -1,11 +1,11 @@
 performance:
-      unstable: 80
+      unstable: 95
       failed: 60 
 accessibility:
-      unstable: 80
+      unstable: 99
       failed: 60
 best_practices:
-      unstable: 80
+      unstable: 100
       failed: 60
 seo:
       unstable: 90
