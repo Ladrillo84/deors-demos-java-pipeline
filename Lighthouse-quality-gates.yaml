@@ -1,6 +1,6 @@
 performance:
       unstable: 80
-      failed: 600 
+      failed: 60 
 accessibility:
       unstable: 80
       failed: 60
