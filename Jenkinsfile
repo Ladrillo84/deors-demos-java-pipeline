@@ -193,8 +193,7 @@ pipeline {
                 }
             }
         }
-        
-        
+                     
         stage('Promote container image') {
             steps {
                 echo '-=- promote container image -=-'
