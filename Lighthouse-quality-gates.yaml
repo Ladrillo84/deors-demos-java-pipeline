@@ -8,6 +8,6 @@ best_practices:
       unstable: 80
       failed: 60
 seo:
-      unstable: 500
+      unstable: 90
       failed: 60 
       
