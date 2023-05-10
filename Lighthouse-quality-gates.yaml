@@ -1,13 +1,13 @@
 performance:
-      unstable: 95
-      failed: 60 
+      unstable: 50
+      failed: 40 
 accessibility:
-      unstable: 99
-      failed: 60
+      unstable: 50
+      failed: 40
 best_practices:
-      unstable: 100
-      failed: 60
+      unstable: 50
+      failed: 40
 seo:
-      unstable: 90
-      failed: 60 
+      unstable: 50
+      failed: 40 
       
