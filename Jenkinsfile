@@ -188,8 +188,8 @@ pipeline {
                     def lighthousejob = build job: "pipelineLighthouse",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME"),
                                                        string(name: 'APP_CONTEXT_ROOT', value: "$env.APP_CONTEXT_ROOT"),
                                                        string(name: 'APP_LISTENING_PORT', value: String.valueOf("$env.APP_LISTENING_PORT")),
-                                                       string(name: 'GIT_REPO_URL', value: "${scm.getLocations()[0].getURL()}"),
-                                                       string(name: 'BRANCH_NAME', value: "${scm.branches[0].name}")]
+                                                       string(name: 'GIT_REPO_URL', value: gitUtility.getGitUrlRepositoryUnderPipeline()),
+                                                       string(name: 'BRANCH_NAME', value: gitUtility.getGitBranchUnderPipeline())]
                     copyArtifacts(projectName: "pipelineLighthouse", selector: specific("${lighthousejob.number}"))                    
                     lighthouseReport('./report.json')
                 }
