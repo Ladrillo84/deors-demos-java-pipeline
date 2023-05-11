@@ -188,7 +188,8 @@ pipeline {
                 script {
                     // def qualityGatesLighthouse = readYaml file: 'Lighthouse-quality-gates.yaml'
                     // println("aki " + qualityGatesLighthouse)
-                    String pathFile = "${sh pwd}/Lighthouse-quality-gates.yaml";
+                    def path = sh 'pwd'
+                    String pathFile = "${path}/Lighthouse-quality-gates.yaml";
                     println(pathFile)
                     def lighthousejob = build job: "lightHouseUsingLib",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME"),
                                                        string(name: 'APP_CONTEXT_ROOT', value: "$env.APP_CONTEXT_ROOT"),
