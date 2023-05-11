@@ -192,7 +192,7 @@ pipeline {
                                                        string(name: 'APP_LISTENING_PORT', value: String.valueOf("$env.APP_LISTENING_PORT")),
                                                        string(name: 'GIT_REPO_URL', value: gitUtility.getGitUrlRepositoryUnderPipeline()),
                                                        string(name: 'BRANCH_NAME', value: gitUtility.getGitBranchUnderPipeline()),
-                                                       [$class: 'MapParameterValue', name: 'QUALITY_GATES', value: qualityGatesLighthouse]]
+                                                       file(name: 'QUALITY_GATES', value: 'Lighthouse-quality-gates.yaml')]
                     copyArtifacts(projectName: "pipelineLighthouse", selector: specific("${lighthousejob.number}"))                    
                     lighthouseReport('./report.json')
                 }
