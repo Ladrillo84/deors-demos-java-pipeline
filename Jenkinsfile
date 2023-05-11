@@ -188,6 +188,7 @@ pipeline {
                     // def qualityGatesLighthouse = readYaml file: 'Lighthouse-quality-gates.yaml'
                     // println("aki " + qualityGatesLighthouse)
                     String pathFile = "${pwd()}/Lighthouse-quality-gates.yaml";
+                    println(pathFile)
                     def lighthousejob = build job: "lightHouseUsingLib",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME"),
                                                        string(name: 'APP_CONTEXT_ROOT', value: "$env.APP_CONTEXT_ROOT"),
                                                        string(name: 'APP_LISTENING_PORT', value: String.valueOf("$env.APP_LISTENING_PORT")),
