@@ -186,12 +186,13 @@ pipeline {
                 echo '-=- execute web page performance analysis -=-'
                 script {
                     qualityGates = readYaml file: 'Lighthouse-quality-gates.yaml'
+                    println("aki "+quelityGates.class)
                     def lighthousejob = build job: "lightHouseUsingLib",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME"),
                                                        string(name: 'APP_CONTEXT_ROOT', value: "$env.APP_CONTEXT_ROOT"),
                                                        string(name: 'APP_LISTENING_PORT', value: String.valueOf("$env.APP_LISTENING_PORT")),
                                                        string(name: 'GIT_REPO_URL', value: gitUtility.getGitUrlRepositoryUnderPipeline()),
                                                        string(name: 'BRANCH_NAME', value: gitUtility.getGitBranchUnderPipeline()),
-                                                       [$class: 'readYaml', name: 'QUALITY_GATES', value: qualityGates]]
+                                                       [$class: 'Map', name: 'QUALITY_GATES', value: qualityGates]]
                     copyArtifacts(projectName: "pipelineLighthouse", selector: specific("${lighthousejob.number}"))                    
                     lighthouseReport('./report.json')
                 }
