@@ -4,6 +4,7 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import java.io.File
 System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
+staticMethod java.lang.System setProperty java.lang.String java.lang.String
 
 pipeline {
     agent {
