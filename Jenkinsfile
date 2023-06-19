@@ -4,11 +4,9 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import java.io.File
 System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
-scriptApproval = ScriptApproval.get()
-alreadyApproved = new HashSet(scriptApproval.getApprovedSignatures())
-approveSignature('staticMethod java.lang.System setProperty java.lang.String java.lang.String')
+def scriptApproval = org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval.get()
+scriptApproval.approveSignature("staticMethod java.lang.System")
 scriptApproval.save()
-scriptApproval.approveSignature(signature)
 
 pipeline {
     agent {
