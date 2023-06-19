@@ -4,7 +4,7 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import java.io.File
 System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
-ScriptApproval.approveSignature("staticMethod java.lang.System setProperty java.lang.String java.lang.String")
+ScriptApproval.approveSignature("staticMethod java.lang.System setProperty", "java.lang.String")
 
 pipeline {
     agent {
