@@ -93,7 +93,7 @@ pipeline {
 
         stage('Dependency Tracker') {
             steps {
-                dependencyTrackPublisher artifact: 'target/bom.xml',
+                dependencyTrackPublisher artifact: 'bom.xml',
                     projectName: env.APP_NAME,
                     projectVersion: env.BUILD_NUMBER,
                     synchronous: true,
