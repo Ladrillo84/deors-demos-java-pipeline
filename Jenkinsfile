@@ -192,7 +192,8 @@ pipeline {
                     def path = sh 'pwd'
                     def pathFile = "${path}/Lighthouse-quality-gates.yaml";
 
-                    stash name: 'QUALITY_GATES', includes: pathFile
+                    // stash name: 'QUALITY_GATES', includes: pathFile
+                    stash name: 'QUALITY_GATES', includes: 'Lighthouse-quality-gates.yaml'
                     def lighthousejob = build job: "lightHouseUsingLib",  parameters: [string(name: 'TEST_CONTAINER_NAME', value: "$env.TEST_CONTAINER_NAME"),
                                                        string(name: 'APP_CONTEXT_ROOT', value: "$env.APP_CONTEXT_ROOT"),
                                                        string(name: 'APP_LISTENING_PORT', value: String.valueOf("$env.APP_LISTENING_PORT")),
