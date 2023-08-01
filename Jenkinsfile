@@ -191,7 +191,7 @@ pipeline {
                                                        string(name: 'APP_LISTENING_PORT', value: String.valueOf("$env.APP_LISTENING_PORT")),
                                                        string(name: 'GIT_REPO_URL', value: gitUtility.getGitUrlRepositoryUnderPipeline()),
                                                        string(name: 'BRANCH_NAME', value: gitUtility.getGitBranchUnderPipeline())]
-                    copyArtifacts(projectName: "pipelineLighthouse", selector: specific("${lighthousejob.number}"))                    
+                    copyArtifacts(projectName: "lightHouseUsingLib", selector: specific("${lighthousejob.number}"))                    
                     lighthouseReport('./report.json')
                 }
             }
