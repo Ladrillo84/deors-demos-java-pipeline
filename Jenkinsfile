@@ -96,7 +96,7 @@ pipeline {
                 dependencyTrackPublisher artifact: 'target/bom.xml',
                     projectName: env.APP_NAME,
                     projectVersion: env.BUILD_NUMBER,
-                    synchronous: true,
+                    synchronous: false,
                     failedTotalCritical:    qualityGates.security.dependencies.critical.failed,
                     unstableTotalCritical:  qualityGates.security.dependencies.critical.unstable,
                     failedTotalHigh:        qualityGates.security.dependencies.high.failed,
