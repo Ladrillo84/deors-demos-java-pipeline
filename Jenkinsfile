@@ -188,6 +188,7 @@ pipeline {
                 script {
                     // def qualityGatesLighthouse = readYaml file: 'Lighthouse-quality-gates.yaml'
                     // println("aki " + qualityGatesLighthouse)
+                    sh 'ls'
                     def path = sh 'pwd'
                     def pathFile = "${path}/Lighthouse-quality-gates.yaml";
 
