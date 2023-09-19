@@ -27,17 +27,17 @@ pipeline {
         BRANCH_MINUS = BRANCH_SONAR.minus('origin/')
 
         // credentials & external systems
-        AAD_SERVICE_PRINCIPAL = credentials('admins-rbac-sp')
-        AKS_TENANT = credentials('aks-tenant')
-        AKS_RESOURCE_GROUP = credentials('aks-resource-group')
-        AKS_NAME = credentials('aks-name')
-        //ACR_NAME = credentials('acr-name')
-        ACR_URL = credentials('acr-url')
+        AAD_SERVICE_PRINCIPAL = credentials('ndop-admins-rbac-sp')
+        AKS_TENANT = credentials('ndop-aks-tenant')
+        AKS_RESOURCE_GROUP = credentials('ndop-aks-resource-group')
+        AKS_NAME = credentials('ndop-aks-name')
+        //ACR_NAME = credentials('ndop-acr-name-tenant')
+        ACR_URL = credentials('ndop-acr-url-tenant')
         // change this later
-        ACR_PULL_CREDENTIAL = 'ndop-acr-credential-secret'
-        SONAR_CREDENTIALS = credentials('sonar-new-credentials')
-        SELENIUM_HUB_HOST = credentials('selenium-hub-host')
-        SELENIUM_HUB_PORT = credentials('selenium-hub-port')
+        ACR_PULL_CREDENTIAL = 'ndop-acr-credential-tenant-secret'
+        SONAR_CREDENTIALS = credentials('ndop-sonar-new-credentials')
+        SELENIUM_HUB_HOST = credentials('ndop-selenium-hub-host')
+        SELENIUM_HUB_PORT = credentials('ndop-selenium-hub-port')
     }
 
     stages {
