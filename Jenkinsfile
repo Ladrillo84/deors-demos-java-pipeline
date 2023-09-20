@@ -7,7 +7,7 @@ System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
 
 pipeline {
     agent {
-        kubernetes(containerCall(imageName: ACR_NAME, credentialSecret: SECRET_NAME))
+        kubernetes(containerCall(imageName: ACR_NAME, credentialSecret: SECRET_NAME, nodeSelectorValue: NODE_SELECTOR_VALUE, nodeTaintKey: NODE_TAINT_KEY, jdkBlocked: true, podmanBlocked:true, aksBuilderBlocked:true, lighthouseBuilderBlocked:true))
     }
 
     environment {
