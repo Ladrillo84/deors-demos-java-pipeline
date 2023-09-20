@@ -69,14 +69,14 @@ pipeline {
             }
         }
 
-        /*stage('Code inspection & quality gate') {
+        stage('Code inspection & quality gate') {
             steps {
                 echo '-=- run code inspection & check quality gate -=-'
                 withSonarQubeEnv('ci-sonarqube') {
                     sh "./mvnw clean compile sonar:sonar -Dsonar.projectKey=$APP_NAME-$BRANCH_MINUS -Dsonar.login=$SONAR_CREDENTIALS_USR -Dsonar.password=$SONAR_CREDENTIALS_PSW"
                 }
             }
-        }*/
+        }
 
         stage('Mutation tests') {
             steps {
@@ -155,7 +155,7 @@ pipeline {
             }
         }
 
-        /*stage('Integration tests') {
+        stage('Integration tests') {
              steps {
                  echo '-=- execute integration tests -=-'
                  sh "curl --retry 10 --retry-connrefused --connect-timeout 5 --max-time 5 http://$TEST_CONTAINER_NAME:$APP_LISTENING_PORT" + "$APP_CONTEXT_ROOT/actuator/health".replace('//', '/')
@@ -166,7 +166,7 @@ pipeline {
                  junit 'target/failsafe-reports/*.xml'
                  jacoco execPattern: 'target/jacoco-it.exec'
              }
-         }*/
+         }
 
         stage('Performance tests') {
             steps {
