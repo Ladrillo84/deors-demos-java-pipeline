@@ -11,7 +11,7 @@ pipeline {
     }
 
     environment {
-        BASE_URL = credentials('url-dependency')
+        BASE_URL = credentials('ndop-url-dependency')
         DEPENDENCY_API_KEY = credentials('ndop-dependencytrack--api-key')
         PROJECT_NAME = 'prueba_dt'
         APP_NAME = 'deors-demos-java-pipeline'
